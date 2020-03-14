@@ -5,6 +5,7 @@ This repository demostrates how to scale up the images and annotations directory
 1. Install ElasticSearch7.4.2 or above
 
 2. sudo apt-get install -y libsm6 libxext6 libxrender-dev
+   #sudo apt-get install gunicorn
 
 3. 
 ```
@@ -14,6 +15,7 @@ cd ESVGscale
 conda create -n PSP python=3.6
 conda activate PSP
 pip install -r requirements.txt 
+pip install waitress
 ```
 
 4. In the earlier ESpspVG1 repository we have created assets directory containing 108077 images from Visual Genome dataset from Stanford. The exercise in this repository will add 22000 new images from ADE20K dataset from MIT CSAIL, first by creating the images, and annotations in this repository. Next we will create new Elastic Search entries and add to the existing index vgnum. 
