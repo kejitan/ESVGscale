@@ -1,4 +1,8 @@
-#README.md
+# README.md
+
+* The application is deployed on AWs and can be accessed at
+  34.194.42.220:8050
+This should be accessible till about 23rd March 2020
 
 * This is a single user application. If multiple users use this application simultaneously, the user input/outputs will interfer.
 
