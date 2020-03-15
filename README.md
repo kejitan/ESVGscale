@@ -6,13 +6,15 @@ This should be accessible till about 23rd March 2020
 
 * This is a single user application. If multiple users use this application simultaneously, the user input/outputs will interfer.
 
-* We have not configured GPU on our instance on AWS, therefore 'Display Similar Images' part of the application takes a little longer (about 25 seconds). Please wait for this period after clicking 'Display Similar Images' button before pressing refresh button. If the application is installed on a local computer with GPU, the response is faster, about 10 seconds. Response for text query based search is fast (a couple of seconds) as it does not need Tensorflow/GPU.
+* We have not configured GPU on our instance on AWS, therefore 'Display Similar Images' part of the application takes a little longer (about 20 seconds). Please wait for this period after clicking 'Display Similar Images' button before pressing refresh button. If the application is installed on a local computer with GPU, the response is faster, about 5 seconds. Response for text query based search is fast (a couple of seconds) as it does not need Tensorflow/GPU.
 
 * Install the application on AWS as described in AWSdeployment.md document.
 
 * Install the application on local computer as described in Installation.md document.
 
 * For completion, scaling of the system is described in Installation1.md document.
+
+* The repository contains sample100.zip archive containing sample images for 'Display Similar Images' part of the application. You can install them on your computer that runs  web browser, or you may use your own images.
 
 
 * IMAGE QUERY BASED IMAGE RETRIEVAL
