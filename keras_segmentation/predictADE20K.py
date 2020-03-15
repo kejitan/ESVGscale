@@ -2,6 +2,8 @@ import glob
 import random
 import json
 import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 import cv2
 import numpy as np

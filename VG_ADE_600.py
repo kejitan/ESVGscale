@@ -1,6 +1,4 @@
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
 from waitress import serve
 
 from textwrap import dedent
@@ -56,6 +54,10 @@ client = Elasticsearch()
 def init_layout(refresh_interval):
     app.layout = serve_layout([])
 
+#def main():
+#    init_layout(1_000)
+#    app.run_server(host='0.0.0.0', port=8050)
+
 def query_imagesi(classnum_list, upfilename): #Disabled --
     print("In query_imagesi")
     hit1 = set()
@@ -74,9 +76,7 @@ def query_imagesi(classnum_list, upfilename): #Disabled --
 
     s1 = s1.query(QI).using(client)
     response = s1.execute()
-    #print(response)
     for hit in s1.scan() :
-        #print("33 ", hit.imgfile)
         image_set.add(hit.imgfile)
     display_image_set(image_set, upfilename)
 
@@ -104,7 +104,6 @@ def query_imageso(object_list):
 
 def display_image_set(image_set, upfilename) :
 
-    #print("image_set = {0}".format(image_set))
     im = 0
     images_div = []
     for image in image_set :
@@ -174,7 +173,7 @@ def serve_layout(img_div):
 		                        html.Div(img_div, id='disp-images' ),
 
 		                    ]),
-                            '''
+                            
                             dcc.Upload(
                                 id='upload-image',
                                 children=html.Div([
@@ -198,10 +197,6 @@ def serve_layout(img_div):
                                 html.Div(id='output-image-upload'),
                                 html.Div(id='output-similar-images' ),
 		                        html.Button( children="Display Similar Images", id="display-similar-images",  n_clicks=0),
-                                #html.Div(id='display-similar-images' ),
-                                html.Div(id='output-images' ),
-                                '''
-
 
 		                ],
 		            ),
@@ -219,7 +214,6 @@ app.layout = serve_layout([])
 def fetch_images(n_clicks, value):
     if n_clicks > 0:
         n_clicks = 0
-        #print("value=", value)
         object_list = value.split(',')
         print("22. object_list=",object_list)
         query_imageso(object_list)
@@ -230,19 +224,15 @@ def fetch_images(n_clicks, value):
 def clear_images(n_clicks):
     if n_clicks > 0:
         n_clicks = 0
-        #images_div = []
         app.layout = serve_layout([])
         print("In clear_images")
 
-'''
+
 @app.callback(Output('output-image-upload', 'children'),
               [Input('upload-image', 'contents')],
               [State('upload-image', 'filename')])
 def select_sample_image(contents, file_name):
     if contents is not None:
-        print("222 " + file_name)
-        #upfilename = file_name
-        #upfile_contents = contents
         children = [ parse_contents(contents, file_name) ]
         return children
 
@@ -266,12 +256,11 @@ def parse_contents(contents, filename):
     image = Image.open(io.BytesIO(image))
     rgb_im = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     resized = cv2.resize(rgb_im, (473,473), interpolation = cv2.INTER_AREA)
-    cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized)
-    print("111"+ "/home/ubuntu/tmp/"+file+".png")
-#    cv2.imwrite("/var/tmp/"+file+".png", resized)
-#    print("111"+ "/var/tmp/"+file+".png")
+    cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized)
+    print("111"+ "/home/kejitan/tmp/"+file+".png")
+    #cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized)
+    #print("111"+ "/home/ubuntu/tmp/"+file+".png")
     upfile_contents = contents
-    #upfilename = "/var/tmp/"+file+".png"
     return html.Div([
         html.H5(filename),
         html.Img(src=contents),
@@ -280,7 +269,6 @@ def parse_contents(contents, filename):
 
 @app.callback(Output('output-similar-images', 'children'),
              [Input('display-similar-images', 'n_clicks')],
-             #[Input('upload-image', 'contents')],
              [State('upload-image', 'filename')] )
 def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
     if n_clicks > 0:
@@ -292,14 +280,12 @@ def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
         fname = os.path.basename(filename)
         file, ext = os.path.splitext(fname)
 
-        #classnum_list = find_classes("/var/tmp/"+file+".png", "/var/tmp/"+file+"seg.png")
-        classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
-        print("4444 classnum_list" )
+        classnum_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
+        #classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
+        print("44 classnum_list" )
         print(classnum_list)
-        #encoded_image = base64.b64encode(open("/var/tmp/"+file+".png", 'rb').read())	
-        #show_image(encoded_image, filename)
-        #query_imagesi(classnum_list, "/var/tmp/"+file+".png" )
-        query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
+        query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
+        #query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
 
 def show_image(contents, filename):
     try:
@@ -317,11 +303,11 @@ def show_image(contents, filename):
         html.Img(src='data:image/png;base64,{}'.format(contents)),
         html.Hr(),  # horizontal line        
     ])
-'''
+
 
 if __name__ == "__main__":
-    #serve(server, host='0.0.0.0', port=8050)
-    serve(server, host='18.221.55.65', port=8050)
+    #serve(server, host='34.194.42.220', port=8050)
+    serve(server, host='0.0.0.0', port=8050)
 #    app.run_server(
 #        port=8050,
 #        host='127.0.0.1',
@@ -329,10 +315,8 @@ if __name__ == "__main__":
 #    )
 '''
     app.run_server(
-        port=8080,
-        #port=8050,
-        host='103.255.38.15'
-        #host='0.0.0.0'
+        port=8050,
+        host='0.0.0.0'
     )
 '''
 #    main()

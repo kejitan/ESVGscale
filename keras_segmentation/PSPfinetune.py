@@ -1,3 +1,7 @@
+import os
+#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
 from keras_segmentation.models.model_utils import transfer_weights
 from keras_segmentation.pretrained import pspnet_50_ADE_20K
 from keras_segmentation.models.pspnet import pspnet_50

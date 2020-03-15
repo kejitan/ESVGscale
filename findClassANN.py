@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 from PIL import Image 
 import glob, os
@@ -22,13 +20,11 @@ from keras_segmentation.models.model_utils import transfer_weights
 from keras_segmentation.pretrained import pspnet_50_ADE_20K
 from keras_segmentation.models.pspnet import pspnet_50
 from keras_segmentation.predict import predict
-#from predictADE20KANN import predictk
 from Kseg2annANN import seg2ann
 
 def find_classes(inp, out_fname):
 
     pr = predict(model=pspnet_50_ADE_20K(), inp=inp, out_fname=out_fname)
-    print("pr = ", pr)
 
     CDict = seg2ann(seg_file=out_fname)
 

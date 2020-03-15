@@ -1,6 +1,5 @@
 import os
-#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-#os.environ["CUDA_VISIBLE_DEVICES"] = ""
+from waitress import serve
 
 from textwrap import dedent
 import dash
@@ -51,16 +50,15 @@ res = requests.get('http://localhost:9200')
 print (res.content)
 es = Elasticsearch([{'host': 'localhost', 'port': '9200'}])
 client = Elasticsearch()
-#app.run_server(host='127.0.0.1', port=8053)
-
-def main():
-    init_layout(1_000)
-    app.run_server(host='127.0.0.1')
 
 def init_layout(refresh_interval):
     app.layout = serve_layout([])
 
-def query_imagesi(classnum_list):
+#def main():
+#    init_layout(1_000)
+#    app.run_server(host='0.0.0.0', port=8050)
+
+def query_imagesi(classnum_list, upfilename): #Disabled --
     print("In query_imagesi")
     hit1 = set()
     image_set = set()
@@ -68,10 +66,9 @@ def query_imagesi(classnum_list):
     
     QI = Q('match_all')
     s1 = Search(index='vgnum')
-    #s1 = Search(index='tryann1')
     classn = 1
     for class_num in classnum_list:
-        if classn > 6 :
+        if classn > 6 :		#can make this 7-- 
             break
         classn = classn + 1
         print("class_num= ",class_num)
@@ -79,11 +76,9 @@ def query_imagesi(classnum_list):
 
     s1 = s1.query(QI).using(client)
     response = s1.execute()
-    #print(response)
     for hit in s1.scan() :
-        #print("33 ", hit.imgfile)
         image_set.add(hit.imgfile)
-    display_image_set(image_set)
+    display_image_set(image_set, upfilename)
 
 
     
@@ -92,7 +87,6 @@ def query_imageso(object_list):
     hit1 = set()
     image_set = set()
     print("11. object_list =", object_list)
-
     
     QI = Q('match_all')
     s1 = Search(index='idx0')
@@ -102,19 +96,15 @@ def query_imageso(object_list):
 
     s1 = s1.query(QI).using(client)
     response = s1.execute()
-    #print(response)
     for hit in s1.scan() :
-        #print("33 ", hit.imgfile)
         image_set.add(hit.imgfile)
 
-    display_image_set(image_set)
+    display_image_set(image_set, None)
 
 
-def display_image_set(image_set) :
+def display_image_set(image_set, upfilename) :
 
-    #print("image_set = {0}".format(image_set))
     im = 0
-    #app.layout = serve_layout
     images_div = []
     for image in image_set :
         if im > 3 : 
@@ -124,19 +114,28 @@ def display_image_set(image_set) :
         print("66 image =", image)
         images_div.append(display_image(image))
         im = im + 1
+    if im == 0 :
+        images_div.append(no_images_msg())
+        app.layout = serve_layout(images_div)
+        print("Please hit refresh...")
+        return
+    if upfilename != None :
+        encoded_image = base64.b64encode(open(upfilename, 'rb').read())  
+        images_div.append(
+            html.Div([
+                html.H5(upfilename),
+                html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode())),
+                html.Hr(),  # horizontal line        
+            ]) )
+
     print("Please hit refresh...")
-    # Here call callback -
-    #serve_layout = 
-    images_div.append(html.Div(id='output-images' ))
     app.layout = serve_layout(images_div)
 
     return
 
-
-
 def no_images_msg():
-    return html.div([
-            html.Output(id='no_images', value="No images found")
+    return html.Div([
+            html.P("No images found")
     ])
 
 def display_image(image):
@@ -153,13 +152,13 @@ def display_image(image):
 def serve_layout(img_div):
     return html.Div(    
 		children=[
-		    dcc.Interval(id="interval-updating-images", interval=100000, n_intervals=0),
+		    dcc.Interval(id="interval-updating-images", interval=1000, n_intervals=0),
 		    html.Div(
 		        className="container",
 		        children=[
 		            html.Div(
 		                id="left-side-column",
-		                className="eight columns",
+		                className="twelve columns",
 		                children=[
 		                    html.Img(
 		                        id="logo-mobile", src=app.get_asset_url("dash-logo.png")
@@ -174,6 +173,7 @@ def serve_layout(img_div):
 		                        html.Div(img_div, id='disp-images' ),
 
 		                    ]),
+                            
                             dcc.Upload(
                                 id='upload-image',
                                 children=html.Div([
@@ -182,8 +182,8 @@ def serve_layout(img_div):
                                 ]),
                                 style={
                                     'width': '100%',
-                                    'height': '60px',
-                                    'lineHeight': '60px',
+                                    'height': '50px',
+                                    'lineHeight': '50px',
                                     'borderWidth': '1px',
                                     'borderStyle': 'dashed',
                                     'borderRadius': '5px',
@@ -197,10 +197,6 @@ def serve_layout(img_div):
                                 html.Div(id='output-image-upload'),
                                 html.Div(id='output-similar-images' ),
 		                        html.Button( children="Display Similar Images", id="display-similar-images",  n_clicks=0),
-                                #html.Div(id='display-similar-images' ),
-                                html.Div(id='output-images' ),
-
-
 
 		                ],
 		            ),
@@ -218,7 +214,6 @@ app.layout = serve_layout([])
 def fetch_images(n_clicks, value):
     if n_clicks > 0:
         n_clicks = 0
-        #print("value=", value)
         object_list = value.split(',')
         print("22. object_list=",object_list)
         query_imageso(object_list)
@@ -229,9 +224,17 @@ def fetch_images(n_clicks, value):
 def clear_images(n_clicks):
     if n_clicks > 0:
         n_clicks = 0
-        #images_div = []
         app.layout = serve_layout([])
         print("In clear_images")
+
+
+@app.callback(Output('output-image-upload', 'children'),
+              [Input('upload-image', 'contents')],
+              [State('upload-image', 'filename')])
+def select_sample_image(contents, file_name):
+    if contents is not None:
+        children = [ parse_contents(contents, file_name) ]
+        return children
 
 
 def parse_contents(contents, filename):
@@ -253,45 +256,38 @@ def parse_contents(contents, filename):
     image = Image.open(io.BytesIO(image))
     rgb_im = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     resized = cv2.resize(rgb_im, (473,473), interpolation = cv2.INTER_AREA)
-    cv2.imwrite("/var/tmp/"+file+".png", resized)
-    print("111"+ " /var/tmp/"+file+".png")
+    #cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized)
+    #print("111"+ "/home/kejitan/tmp/"+file+".png")
+    cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized)
+    print("111"+ "/home/ubuntu/tmp/"+file+".png")
+    upfile_contents = contents
     return html.Div([
         html.H5(filename),
         html.Img(src=contents),
         html.Hr()  # horizontal line        
     ])
 
-
-@app.callback(Output('output-image-upload', 'children'),
-              [Input('upload-image', 'contents')],
-              [State('upload-image', 'filename')])
-def update_sample(contents, file_name):
-    if contents is not None:
-        print("222 " + file_name)
-        children = [ parse_contents(contents, file_name) ]
-        return children
-
-
 @app.callback(Output('output-similar-images', 'children'),
              [Input('display-similar-images', 'n_clicks')],
-             #[Input('upload-image', 'contents')],
              [State('upload-image', 'filename')] )
 def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
     if n_clicks > 0:
+        print("3333 display_similar_images: filename ", filename)
         print("click_received")
         n_clicks = 0
-
+        if (filename == None) :
+            return
         fname = os.path.basename(filename)
         file, ext = os.path.splitext(fname)
 
-        CDict = find_classes("/var/tmp/"+file+".png", "/var/tmp/"+file+"seg.png")
-        #print("4444 CDict" )
-        #print(CDict)	
-        query_imagesi(CDict)
- 
+        #classnum_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
+        classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
+        print("44 classnum_list" )
+        print(classnum_list)
+        #query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
+        query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
 
-
-def show_images(contents, filename):
+def show_image(contents, filename):
     try:
         if ( ('jpg' in filename) or ('JPG' in filename) or ('png' in filename) or ('PNG' in filename) ):
         # Assume that the user uploaded an image file
@@ -304,10 +300,24 @@ def show_images(contents, filename):
 
     return html.Div([
         html.H5(filename),
-        html.Img(src=contents),
+        html.Img(src='data:image/png;base64,{}'.format(contents)),
         html.Hr(),  # horizontal line        
     ])
 
+
 if __name__ == "__main__":
-    main()
+    #serve(server, host='34.194.42.220', port=8050)
+    serve(server, host='0.0.0.0', port=8050)
+#    app.run_server(
+#        port=8050,
+#        host='127.0.0.1',
+#        debug=True
+#    )
+'''
+    app.run_server(
+        port=8050,
+        host='0.0.0.0'
+    )
+'''
+#    main()
 #    app.run_server(debug=True, port=8053)

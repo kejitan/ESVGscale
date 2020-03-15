@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+import os
 
 from PIL import Image 
-import glob, os
+import glob
 from tqdm import tqdm
 import six
 import pandas as pd

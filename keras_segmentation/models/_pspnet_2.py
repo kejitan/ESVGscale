@@ -1,4 +1,7 @@
 # This code is proveded by Vladkryvoruchko and small modifications done by me .
+import os
+#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 from math import ceil
 from sys import exit

@@ -1,8 +1,10 @@
+import os
+#os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+#os.environ["CUDA_VISIBLE_DEVICES"] = ""
 import argparse
 import json
 from .data_utils.data_loader import image_segmentation_generator, \
     verify_segmentation_dataset
-import os
 import glob
 import six
 
