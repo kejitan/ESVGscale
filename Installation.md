@@ -32,10 +32,11 @@ $ unzip assets.zip
 $ rm assets.zip -- to make 11 GB room on SSD
 $ unzip objects.zip
 $ unzip images_data.zip
-$ tar -xzf annADK.tgz
+$ unzip annADK.zip
 $ tar -xzf ANN.tgz
 
-* -- In this repository we have given the annADK.tgz and ANN.tgz files. Procedure to create these files is explained in Installation1.md doc.  included in the repository. 
+-- In this repository we have given the annADK.tgz and ANN.tgz files. Procedure to create these files is explained in Installation1.md doc. assets.zip being > 11 GB file is not included in the repository. assets.zip is made available on Google drive at the following link:
+https://drive.google.com/file/d/19iPg0MgP06fhL3gsIz3KE1CL8hyqmrNT/view?usp=sharing 
 
 -- Install Anaconda
 $ bash Anaconda3-2020.02-Linux-x86_64.sh
@@ -82,8 +83,12 @@ $ python ESMap.py
 $ python ESANN.py
 $ python ESannADK.py
 
+# setting up of tmp directory path in home/username
+-- create a tmp directory say /home/username/tmp 
+-- Open VG_ADK_600.py and change instances of /home/kejitan/tmp to /home/username/tmp
+-- This directory is used to write temporary files in the 'Display Similar Images' query processing
 19. start application from ESVGscale directory
-$ python VG_ADK_aws.py
+$ python VG_ADK_600.py
 
 20. Open a browser and visit localhost:8050
 

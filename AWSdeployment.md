@@ -13,7 +13,7 @@
 
 4. Upload the following files from your local computer to /home/ubuntu on home directory on EC2 instance using scp. Please replace the file names and EC2 computer name to reflect your instance. 
 
-5. -- In this repository we have given the annADK.tgz and ANN.tgz files. Procedure to create these files is explained in Installation1.md doc. if desired, these can be carried on the local computer and then the files can be copied to EC2 using scp. Procedure to create assets.zip file is also given in that document. assets.zip being > 11 GB file is not included in the repository. assets.zip is made avaibale on Google drive at the following link:
+5. -- In this repository we have given the annADK.tgz and ANN.tgz files. Procedure to create these files is explained in Installation1.md doc. if desired, these can be carried on the local computer and then the files can be copied to EC2 using scp. Procedure to create assets.zip file is also given in that document. assets.zip being > 11 GB file is not included in the repository. assets.zip is made available on Google drive at the following link:
 https://drive.google.com/file/d/19iPg0MgP06fhL3gsIz3KE1CL8hyqmrNT/view?usp=sharing
 
 -- download anaconda Anaconda3-2020.02-Linux-x86_64.sh on your local computer
