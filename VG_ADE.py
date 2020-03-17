@@ -229,14 +229,14 @@ def parse_contents(contents, filename):
     image = Image.open(io.BytesIO(image))
     rgb_im = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     resized = cv2.resize(rgb_im, (473,473), interpolation = cv2.INTER_AREA)
-    #if (cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized) == False) :
-    #    print("Could not create /home/kejitan/tmp/"+file+".png")
-    #    return
-    #print("111"+ "/home/kejitan/tmp/"+file+".png")
-    if (cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized) == False) :
+    if (cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized) == False) :
         print("Could not create /home/kejitan/tmp/"+file+".png")
         return
-    print("111"+ "/home/ubuntu/tmp/"+file+".png")
+    print("111"+ "/home/kejitan/tmp/"+file+".png")
+    #if (cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized) == False) :
+    #    print("Could not create /home/kejitan/tmp/"+file+".png")
+    #    return
+    #print("111"+ "/home/ubuntu/tmp/"+file+".png")
     upfile_contents = contents
     return html.Div([
         html.H5(filename),
@@ -261,14 +261,14 @@ def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
         fname = os.path.basename(filename)
         file, ext = os.path.splitext(fname)
 
-        #classnum_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
-        classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
+        classnum_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
+        #classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
         print("44 classnum_list" )
         print(classnum_list)
         #app_layout=wait_layout()
 
-        #return query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
-        return query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
+        return query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
+        #query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
 
 
 if __name__ == "__main__":

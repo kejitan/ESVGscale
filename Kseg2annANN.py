@@ -17,7 +17,11 @@ import time
 import multiprocessing
 
 def seg2ann(seg_file) :
-	data = pd.read_csv('./PSPindexClass.csv')
+	try:
+		data = pd.read_csv('./PSPindexClass.csv')
+	except Exception as e:
+		print(e)
+		return {}
 	cols = ['Idx','Ratio','Train','Val','Stuff','Name']
 	CNames = np.empty(150, dtype=np.object)
 	for k in range(150):
