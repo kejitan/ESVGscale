@@ -1,12 +1,15 @@
 # README.md
 
-* The application is deployed on AWs and can be accessed at
-  34.194.42.220:8050
-This should be accessible from a web browser till about 23rd March 2020
+* The application was deployed on AWS at 34.194.42.220:8050 till till about 24th March 2020 and was taken out after complimentaryt AWS Educate credit was exhausted. 
+
+* P paper has been written and submitted to Computer Vision DevCom 2020 conference and is available in the repository with name TIQS-Final1.pdf
+
+* A recording of a user session is made availavle at
+https://drive.google.com/file/d/1em0lD1sEK7S2Z_OqTfgiKjEbo39gGG7r/view?usp=sharing
 
 * This is a multi user application. Input/outputs from multiple users do not interfer.
 
-* We have not configured GPU on our instance on AWS, therefore 'Display Similar Images' part of the application takes a little longer (about 20 seconds). The display will come without further intervention after pressing 'Display Similar Images' button. If the application is installed on a local computer with GPU, the response is faster, about 5 seconds. Response for text query based search is fast (a couple of seconds) as it does not need Tensorflow/GPU.
+* If the application is installed on a local computer with GPU, the response is faster, about 5 seconds. Response for text query based search is fast (less than 2 seconds) as it does not need Tensorflow/GPU.
 
 * Install the application on AWS as described in AWSdeployment.md document.
 or
@@ -16,24 +19,28 @@ or
 
 * The repository contains sample100.zip archive containing sample images for 'Display Similar Images' part of the application. You can install them on your computer that runs web browser, or you may use your own images.
 
+* Testing and logging are described in Testing.md document
+
 
 * IMAGE QUERY BASED IMAGE RETRIEVAL
 
 1. Now we are ready to run the Image based query application. Run
 $ conda activate PSP15
 $ -- cd ~/InstallDir/ESVGscale
-$ python VG_ADE_600.py 
-from a terminal in the ESVGscale directory.
+$ python VG_ADE_600.py or
+python VG_ADE_600_score.py for a script with implementation of a novel similarity score between the sample image and candidate images, from a terminal in the ESVGscale directory.
 
 2. It will inform that the application will interact on localhost:8050 port. Please visit this link in a web browser. Click refresh button in the web browser. You will see four boxes. Top Input box and FETCH IMAGES button are for Query based image search.
 
 3. For Image based search, we need to supply the application with a sample image. This can be done by selecting a sample jpg file (from your local computer) or dragging it on the Drag and Drop of Select Files component. Once the image is loaded, press DISPLAY SIMILAR IMAGES button. 
 
-4. After about 20 seconds, you will see up to 4 images that have similarity to the sample image supplied earlier. 
+4. We see up to 4 images that have similarity to the sample image supplied earlier. 
 
 5. Please press Refresh button on the browser to clear images on the screen. 
 
-6. We can repeat the procedure to assess the quality of similarity of the images. This is at present not very good, since the number categories (type of objects in the images) is 150 (small). These classes can be examined in the file PSPindexClass.csv file. We have 108077 + 22000 images and each image has up to 11 classes identified in the images. For similarity we match top 7 classes from the sample images. A change that we could implement in the future versions is  to consider objects for comparison only if they meet some minimum number of pixels criteria(say 2000). Under the Elastic Search regime it will be very difficult if not impossible to consider top N objects from the images in the dataset. Right now we have not impemented a similarity score because, the objects are labeled in the images irrespective of their size or prominence. Such information is hard to get by in the automatic annotation process using semantic segmentation as we are using. 
+6. VG_ADE_600.py uses 108077 + 22000 images from Visual Genome and ADE20K datasets respectively, and have been annotated into 150 classes and stored in teh ElasticSearch index. The sample image is also segmented and annotated into 150 classes (PSPindexClass.csv file). For similarity we match top 7 classes from the sample images with those in the ElasticSearcj index. A randon set of 4 matching images is presented to the user.  
+
+7. VG_ADE_600_score.py uses 22000 images from ADE20K image dataset and has been annotated into classname as well as pixel sizes for each class. The script implements a novel similarity score computation.  If the number of pixels in a class for sample image and candidate image are similar, the class contributes high similarity score to the overall similarity score ofthe image. On the other hand if the number of pixels in teh sample image and candidate image (for class under consideration) is very different then it ccontributes low to the overall score even though the class is present in both the sample image and candiate image. The 108077 images need to be annotated for Classname and ClassVal (pixel size) and added to the Elastic Serach database before thye can be searched using this new similarity measure. Please ferer to the attached paper for mode details. 
 
 
 * TEXT QUERY BASED IMAGE RETRIEVAL
@@ -47,6 +54,4 @@ The system will search the Visual Genome dataset using ElasticSearch and present
 
 4. Please press Refresh button on the browser to clear images on the screen. 
  
-
-
 

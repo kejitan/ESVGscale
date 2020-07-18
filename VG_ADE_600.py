@@ -52,23 +52,19 @@ es = Elasticsearch([{'host': 'localhost', 'port': '9200'}])
 client = Elasticsearch()
 
 def init_layout(refresh_interval):
-    app.layout = serve_layout([])
-
-#def main():
-#    init_layout(1_000)
-#    app.run_server(host='0.0.0.0', port=8050)
+    app.layout = serve_layout([], 'man,tiger')
 
 def query_imagesi(classnum_list, upfilename): #Disabled --
-    print("In query_imagesi")
+    #print("In query_imagesi")
     hit1 = set()
     image_set = set()
-    print("11. classnum_list =", classnum_list)
+    #print("11. classnum_list =", classnum_list)
     
     QI = Q('match_all')
     s1 = Search(index='vgnum')
     classn = 1
     for class_num in classnum_list:
-        if classn > 6 :		#can make this 7-- 
+        if classn > 7 :		#can make this 7-- 
             break
         classn = classn + 1
         print("class_num= ",class_num)
@@ -78,7 +74,7 @@ def query_imagesi(classnum_list, upfilename): #Disabled --
     response = s1.execute()
     for hit in s1.scan() :
         image_set.add(hit.imgfile)
-    display_image_set(image_set, upfilename)
+    return display_image_set(image_set, upfilename, '')
 
 
     
@@ -99,11 +95,17 @@ def query_imageso(object_list):
     for hit in s1.scan() :
         image_set.add(hit.imgfile)
 
-    display_image_set(image_set, None)
+    return display_image_set(image_set, None, object_list)
 
 
-def display_image_set(image_set, upfilename) :
+def display_image_set(image_set, upfilename, object_list) :
 
+    objects=''
+    for ob in object_list:
+        if objects == '':
+            objects = ob
+        else:
+            objects = objects + ',' + ob
     im = 0
     images_div = []
     for image in image_set :
@@ -114,24 +116,8 @@ def display_image_set(image_set, upfilename) :
         print("66 image =", image)
         images_div.append(display_image(image))
         im = im + 1
-    if im == 0 :
-        images_div.append(no_images_msg())
-        app.layout = serve_layout(images_div)
-        print("Please hit refresh...")
-        return
-    if upfilename != None :
-        encoded_image = base64.b64encode(open(upfilename, 'rb').read())  
-        images_div.append(
-            html.Div([
-                html.H5(upfilename),
-                html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode())),
-                html.Hr(),  # horizontal line        
-            ]) )
 
-    print("Please hit refresh...")
-    app.layout = serve_layout(images_div)
-
-    return
+    return images_div
 
 def no_images_msg():
     return html.Div([
@@ -147,12 +133,9 @@ def display_image(image):
            ) )
     )
 
-
-
-def serve_layout(img_div):
+def serve_layout(img_div, objects):
     return html.Div(    
 		children=[
-		    dcc.Interval(id="interval-updating-images", interval=1000, n_intervals=0),
 		    html.Div(
 		        className="container",
 		        children=[
@@ -165,15 +148,13 @@ def serve_layout(img_div):
 		                    ),
 		                    html.Label('Objects in Image'),
 		                    html.Div([
-		                        html.Div(dcc.Input(id="Objects-in-image", value="man",type='text')),                       
+		                        html.Div(dcc.Input(id="Objects-in-image", value=objects,type='text')),                       
 		                        html.Button( children="Fetch Images", id="fetch-images",  n_clicks=0),
-		                        html.Div(id='outputf', children="fimage"),
-		                        html.Button( children="Clear Images", id="clear-images", n_clicks=0),
-								html.Div(id='display-clear-button', children="dimage"),
-		                        html.Div(img_div, id='disp-images' ),
+		                        html.Div(id='outputf'),
+		                        html.Div(img_div),
 
 		                    ]),
-                            
+
                             dcc.Upload(
                                 id='upload-image',
                                 children=html.Div([
@@ -191,7 +172,7 @@ def serve_layout(img_div):
                                     'margin': '10px'
                                 },
  
-                                # Allow multiple files to be uploaded
+                                # Do not allow multiple files to be uploaded
                                 multiple=False
                                 ),
                                 html.Div(id='output-image-upload'),
@@ -206,7 +187,7 @@ def serve_layout(img_div):
 )
 
 
-app.layout = serve_layout([])
+app.layout = serve_layout([], 'man,tiger')
 
 @app.callback(Output('outputf', 'children'),
              [Input('fetch-images', 'n_clicks')],
@@ -216,17 +197,9 @@ def fetch_images(n_clicks, value):
         n_clicks = 0
         object_list = value.split(',')
         print("22. object_list=",object_list)
-        query_imageso(object_list)
-
-
-@app.callback(Output('display-clear-button', 'children'),
-             [Input('clear-images', 'n_clicks')] )
-def clear_images(n_clicks):
-    if n_clicks > 0:
-        n_clicks = 0
-        app.layout = serve_layout([])
-        print("In clear_images")
-
+        #app.layout=wait_layout()
+        return query_imageso(object_list)
+         
 
 @app.callback(Output('output-image-upload', 'children'),
               [Input('upload-image', 'contents')],
@@ -256,9 +229,13 @@ def parse_contents(contents, filename):
     image = Image.open(io.BytesIO(image))
     rgb_im = cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
     resized = cv2.resize(rgb_im, (473,473), interpolation = cv2.INTER_AREA)
-    cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized)
+    if (cv2.imwrite("/home/kejitan/tmp/"+file+".png", resized) == False) :
+        print("Could not create /home/kejitan/tmp/"+file+".png")
+        return
     print("111"+ "/home/kejitan/tmp/"+file+".png")
-    #cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized)
+    #if (cv2.imwrite("/home/ubuntu/tmp/"+file+".png", resized) == False) :
+    #    print("Could not create /home/kejitan/tmp/"+file+".png")
+    #    return
     #print("111"+ "/home/ubuntu/tmp/"+file+".png")
     upfile_contents = contents
     return html.Div([
@@ -267,16 +244,20 @@ def parse_contents(contents, filename):
         html.Hr()  # horizontal line        
     ])
 
+
+
 @app.callback(Output('output-similar-images', 'children'),
              [Input('display-similar-images', 'n_clicks')],
              [State('upload-image', 'filename')] )
 def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
     if n_clicks > 0:
-        print("3333 display_similar_images: filename ", filename)
+        print("33 display_similar_images: filename ", filename)
         print("click_received")
         n_clicks = 0
         if (filename == None) :
             return
+        value='fetching_images'
+
         fname = os.path.basename(filename)
         file, ext = os.path.splitext(fname)
 
@@ -284,40 +265,14 @@ def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
         #classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
         print("44 classnum_list" )
         print(classnum_list)
-        query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
+        #app_layout=wait_layout()
+
+        return query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
         #query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
-
-def show_image(contents, filename):
-    try:
-        if ( ('jpg' in filename) or ('JPG' in filename) or ('png' in filename) or ('PNG' in filename) ):
-        # Assume that the user uploaded an image file
-            dummy = True;
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    return html.Div([
-        html.H5(filename),
-        html.Img(src='data:image/png;base64,{}'.format(contents)),
-        html.Hr(),  # horizontal line        
-    ])
 
 
 if __name__ == "__main__":
     #serve(server, host='34.194.42.220', port=8050)
     serve(server, host='0.0.0.0', port=8050)
-#    app.run_server(
-#        port=8050,
-#        host='127.0.0.1',
-#        debug=True
-#    )
-'''
-    app.run_server(
-        port=8050,
-        host='0.0.0.0'
-    )
-'''
 #    main()
 #    app.run_server(debug=True, port=8053)

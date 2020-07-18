@@ -31,7 +31,7 @@ from elasticsearch_dsl import Index, analyzer, tokenizer
 import glob
 import cv2
 from matplotlib import pyplot as plt
-from findClassANN import find_classes
+from findClassANNscore import find_classes
 from PIL import Image
 import base64
 import io
@@ -54,26 +54,64 @@ client = Elasticsearch()
 def init_layout(refresh_interval):
     app.layout = serve_layout([], 'man,tiger')
 
-def query_imagesi(classnum_list, upfilename): #Disabled --
-    print("In query_imagesi")
+def query_imagesi(classnum_list, classval_list, upfilename): 
+
+    #print("In query_imagesi")
     hit1 = set()
     image_set = set()
-    print("11. classnum_list =", classnum_list)
-    
+    #print("11. classnum_list =", classnum_list)
+    #print("12. classval_list =", classval_list)
+    if (len(classnum_list) > 7) :
+        lenclassnum = 7
+
     QI = Q('match_all')
-    s1 = Search(index='vgnum')
+    s1 = Search(index='adknum')
+    #s1 = Search(index='vgnum')
     classn = 1
     for class_num in classnum_list:
-        if classn > 7 :		#can make this 7-- 
+        if classn > 7 :		#can make this 5-- 
             break
         classn = classn + 1
-        print("class_num= ",class_num)
         QI = QI & Q('bool', must=[Q("match", classnum=class_num)])
 
     s1 = s1.query(QI).using(client)
     response = s1.execute()
+    hit_num = 0
+    simDict = {}
+    similarityClass = np.zeros(15)
     for hit in s1.scan() :
-        image_set.add(hit.imgfile)
+        print("123. hit.classnum: ", hit.classnum)
+        print("124. hit.classval: ", hit.classval)
+        lenimgclassnum = len(hit.classnum)
+        simDict[hit.imgfile] = 1.0
+        #similarityClass[lenimgclassnum]
+        # Compute similarity and choose top 4 rather than random 4
+        ii = 0
+        similarityImg = 0.0
+        for classi in classnum_list:
+            jj = 0
+            for classj in hit.classnum:
+                if classi ==  int(classj):
+                    similarityClass[ii] = classval_list[ii]/(abs((classval_list[ii]-int(hit.classval[jj]))) + 10)
+                    #print("144. similarityClass[ii] = ", similarityClass[ii])
+                    similarityImg = similarityImg + similarityClass[ii]
+                    break
+                jj = jj + 1
+            simDict[hit.imgfile] = similarityImg
+            #print("130. simDict[hit.imgfile] = ", simDict[hit.imgfile], similarityImg)
+            ii = ii + 1
+
+    #for key in sorted(simDict.keys(), reverse=True) :
+    kk = 0
+    for img in sorted(simDict, key=simDict.get, reverse=True):
+        print("140. ", img, simDict[img])
+        image_set.add(img)
+        #image_set.add(hit.imgfile)
+        #pick top 4 images (hit_nums)
+        kk = kk + 1
+        if kk > 3:
+            break
+
     return display_image_set(image_set, upfilename, '')
 
 
@@ -261,14 +299,16 @@ def display_similar_images( n_clicks, filename ): # image in jpg or mpg format
         fname = os.path.basename(filename)
         file, ext = os.path.splitext(fname)
 
-        classnum_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
-        #classnum_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
+        classnum_list, classval_list = find_classes("/home/kejitan/tmp/"+file+".png", "/home/kejitan/tmp/"+file+"seg.png")
+        #classnum_list, classval_list = find_classes("/home/ubuntu/tmp/"+file+".png", "/home/ubuntu/tmp/"+file+"seg.png")
         print("44 classnum_list" )
         print(classnum_list)
+        print("45 classval_list" )
+        print(classval_list)
         #app_layout=wait_layout()
 
-        return query_imagesi(classnum_list, "/home/kejitan/tmp/"+file+".png" )
-        #query_imagesi(classnum_list, "/home/ubuntu/tmp/"+file+".png" )
+        return query_imagesi(classnum_list, classval_list, "/home/kejitan/tmp/"+file+".png" )
+        #query_imagesi(classnum_list, classval_list, "/home/ubuntu/tmp/"+file+".png" )
 
 
 if __name__ == "__main__":
