@@ -53,5 +53,16 @@ The system will search the Visual Genome dataset using ElasticSearch and present
 3. After this you can present the system with another query. 
 
 4. Please press Refresh button on the browser to clear images on the screen. 
- 
+
+Acknowledgements
+
+The authors acknowledge use of Divam Gupta’s keras-semantic-segmentation library, Stanford University’s Visual Genome dataset, MIT CSAIL’s ADE20K dataset, pspnet50 model pretrained on ADE20K dataset. The application used Elastic Search, Kibana, Plotly Dash, AWS Educational Credits for hosting the application for a few days. Google Search and Stack Overflow among others were very
+helpful in resolving myriads of problems encountered while implementing the system. I would like to thank my mentor Krishna Kumar Tiwari for his guidance in this Capstone project.  
+
+https://visualgenome.org/api/v0/api_home.html -- Data download directory
+https://groups.csail.mit.edu/vision/datasets/ADE20K/ -- Data download directory
+https://github.com/divamgupta/image-segmentation-keras Github repository
+https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html Blog
+
+
 
