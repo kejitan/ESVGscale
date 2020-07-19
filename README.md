@@ -65,4 +65,5 @@ The author acknowledges use of Divam Gupta’s keras-semantic-segmentation libra
 * https://divamgupta.com/image-segmentation/2019/06/06/deep-learning-semantic-segmentation-keras.html Blog
 
 
-
+# License
+* This work uses Visual Genome Dataset, ADE20K Dataset, Divam Gupta's Keras Segmentation library under their licenses. Author's contributions are licensed under a Creative Commons Attribution 4.0 International License. 
