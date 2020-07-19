@@ -1,12 +1,13 @@
 # Testing.md
 
 1. We are ready to Test the Query based Image Retrieval application. Run
-$ sudo systemctl start elasticsearch.service 
-$ conda activate PSP15
-$ -- cd ~/InstallDir/ESVGscale
+* $ sudo systemctl start elasticsearch.service 
+* $ conda activate PSP15
+* $ -- cd ~/InstallDir/ESVGscale
 Run
-$ python VG_ADE_600.py -  or
-$ python VG_ADE_600_score.py - from a terminal in the ESVGscale directory. Both these scripts provide identical implementatio of TEXT based query, but they provide different implementation for IMAGE based query.
+* $ python VG_ADE_600.py -  or
+* $ python VG_ADE_600_score.py - from a terminal in the ESVGscale directory. 
+* Both these scripts provide identical implementatio of TEXT based query, but they provide different implementation for IMAGE based query.
 
 2. On the browser type "localhost:8050". 
 
